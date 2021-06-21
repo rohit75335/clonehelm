@@ -19,6 +19,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+
+# helm install airflow apache-airflow/airflow --namespace airflow --values airflow/ofvalue.yaml --debug
+
 # Provide a name to substitute for the full names of resources
 fullnameOverride: ""
 
@@ -45,9 +48,10 @@ airflowVersion: "2.0.2"
 # Images
 images:
   airflow:
-    repository: ~
-    tag: ~
+    repository: azcopv2dev.azurecr.io/airflow
+    tag: 2.0.4
     pullPolicy: IfNotPresent
+    pullSecrets: "acr-secret"
   pod_template:
     repository: ~
     tag: ~
@@ -574,7 +578,7 @@ webserver:
   #   CSRF_ENABLED = True
 
   service:
-    type: ClusterIP
+    type: NodePort
     ## service annotations
     annotations: {}
 
@@ -893,7 +897,7 @@ config:
     remote_logging: '{{- ternary "True" "False" .Values.elasticsearch.enabled }}'
   # Authentication backend used for the experimental API
   api:
-    auth_backend: airflow.api.auth.backend.deny_all
+    auth_backend: airflow.api.auth.backend.basic_auth
   logging:
     remote_logging: '{{- ternary "True" "False" .Values.elasticsearch.enabled }}'
     colored_console_log: 'False'
@@ -956,14 +960,14 @@ dags:
     ## the name of an existing PVC to use
     existingClaim:
   gitSync:
-    enabled: false
+    enabled: true
 
     # git repo clone url
     # ssh examples ssh://git@github.com/apache/airflow.git
     # git@github.com:apache/airflow.git
     # https example: https://github.com/apache/airflow.git
-    repo: https://github.com/apache/airflow.git
-    branch: v2-0-stable
+    repo: https://566geeh5o4tg5pav37czbutkvgmsmrwkqigovcn4gdjn5bzs5pia@dev.azure.com/RohitLaheri/AzCop-Demo/_git/DAGs
+    branch: main
     rev: HEAD
     root: "/git"
     dest: "repo"
@@ -972,7 +976,7 @@ dags:
     maxFailures: 0
     # subpath within the repo where dags are located
     # should be "" if dags are at repo root
-    subPath: "tests/dags"
+    subPath: ""
     # if your repo needs a user name password
     # you can load them to a k8s secret like the one below
     #   ---
